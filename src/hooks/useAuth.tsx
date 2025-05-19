@@ -11,12 +11,12 @@ import { Loader2 } from "lucide-react";
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
-  isAdmin: boolean; 
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_EMAIL = "admin@numbersguru.com";
+const ADMIN_EMAIL = "admin@numbersguru.com"; // Ensure this is the correct admin email
 
 export const AuthProvider: FC<{children: ReactNode}> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -25,11 +25,15 @@ export const AuthProvider: FC<{children: ReactNode}> = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('[AuthProvider] onAuthStateChanged triggered. User email:', user?.email);
       setCurrentUser(user);
       if (user && user.email) {
-        setIsAdmin(user.email.toLowerCase() === ADMIN_EMAIL);
+        const isAdminUser = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+        setIsAdmin(isAdminUser);
+        console.log(`[AuthProvider] User email: ${user.email.toLowerCase()}, ADMIN_EMAIL: ${ADMIN_EMAIL.toLowerCase()}, Calculated isAdmin: ${isAdminUser}`);
       } else {
         setIsAdmin(false);
+        console.log('[AuthProvider] No user or no email, isAdmin set to false.');
       }
       setLoading(false);
     });
@@ -37,6 +41,9 @@ export const AuthProvider: FC<{children: ReactNode}> = ({ children }) => {
       unsubscribe();
     };
   }, []);
+
+  // Log state before rendering children for clarity
+  // console.log('[AuthProvider] Rendering children. currentUser:', currentUser?.email, 'loading:', loading, 'isAdmin:', isAdmin);
 
   if (loading) {
     return (
@@ -60,4 +67,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

@@ -9,30 +9,36 @@ interface ActionResult {
   error?: string;
 }
 
-const ADMIN_EMAIL = "admin@numbersguru.com";
+const ADMIN_EMAIL = "admin@numbersguru.com"; // Ensure this is the correct admin email
 
 async function isUserAdmin(email: string | null | undefined): Promise<boolean> {
   if (!email) {
     return false;
   }
-  return email.toLowerCase() === ADMIN_EMAIL;
+  // Case-insensitive comparison
+  return email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 }
 
 
 export async function signInWithEmail(email: string, password: string): Promise<ActionResult> {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    console.log(`[AuthAction - signInWithEmail] Firebase signInWithEmailAndPassword successful for UID: ${userCredential.user.uid}, Email: ${userCredential.user.email}`);
     
-    const isAdmin = await isUserAdmin(userCredential.user.email);
-    if (!isAdmin) {
+    const isAdminUser = await isUserAdmin(userCredential.user.email);
+    if (!isAdminUser) {
       await signOut(auth); // Sign out non-admin users immediately
+      console.log(`[AuthAction - signInWithEmail] Access denied for ${userCredential.user.email}. Not the designated admin.`);
       return { success: false, error: "Access denied. User is not authorized as an admin." };
     }
-
+    
+    console.log(`[AuthAction - signInWithEmail] Admin access granted for ${userCredential.user.email}.`);
     return { success: true };
   } catch (error) {
     const authError = error as AuthError;
     let errorMessage = "An unknown error occurred during sign-in.";
+    console.error("[AuthAction - signInWithEmail] Error during sign-in:", authError);
+
     switch (authError.code) {
       case "auth/invalid-email":
         errorMessage = "Invalid email address format.";
@@ -56,9 +62,10 @@ export async function signInWithEmail(email: string, password: string): Promise<
 export async function signOutUser(): Promise<ActionResult> {
   try {
     await signOut(auth);
+    console.log("[AuthAction - signOutUser] User signed out successfully.");
     return { success: true };
   } catch (error) {
+    console.error("[AuthAction - signOutUser] Error during sign-out:", error);
     return { success: false, error: (error as Error).message || "Failed to sign out." };
   }
 }
-

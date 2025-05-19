@@ -20,15 +20,21 @@ export default function DashboardLayout({
   const { currentUser, loading, isAdmin } = useAuth(); 
   const router = useRouter();
 
+  console.log('[DashboardLayout] Rendering. loading:', loading, 'currentUser:', currentUser?.email, 'isAdmin:', isAdmin);
+
   useEffect(() => {
     if (!loading) {
       if (!currentUser || !isAdmin) { 
+        console.log('[DashboardLayout] useEffect: Not admin or no user, redirecting to /login. currentUser:', currentUser?.email, 'isAdmin:', isAdmin);
         router.replace('/login');
+      } else {
+        console.log('[DashboardLayout] useEffect: User is admin, proceeding.');
       }
     }
   }, [currentUser, loading, isAdmin, router]);
 
-  if (loading || !currentUser || !isAdmin) { 
+  if (loading) {
+    console.log('[DashboardLayout] Initial loading state, showing loader.');
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -36,6 +42,18 @@ export default function DashboardLayout({
     );
   }
 
+  if (!currentUser || !isAdmin) {
+     console.log('[DashboardLayout] Guard: Not admin or no user after loading. Will be redirected by useEffect. currentUser:', currentUser?.email, 'isAdmin:', isAdmin);
+    // Return loader or null, useEffect will handle the redirect.
+    // This prevents rendering dashboard content prematurely.
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  console.log('[DashboardLayout] User is admin, rendering dashboard content.');
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen">
