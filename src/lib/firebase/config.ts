@@ -3,12 +3,12 @@ import { getAuth, Auth } from "firebase/auth";
 
 // IMPORTANT: Replace these with your actual Firebase project configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyBNceENludogP8jNyslmpsMGgUjSXNhCyM",
+  authDomain: "number-guru-backend.firebaseapp.com",
+  projectId: "number-guru-backend",
+  storageBucket: "number-guru-backend.firebasestorage.app",
+  messagingSenderId: "637453549935",
+  appId: "1:637453549935:web:0b3f7122ef75f93f68a89a",
 };
 
 let app: FirebaseApp;

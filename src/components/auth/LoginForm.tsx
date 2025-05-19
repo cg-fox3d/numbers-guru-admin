@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,9 +41,10 @@ export function LoginForm() {
       if (result.success) {
         toast({
           title: "Login Successful",
-          description: "Redirecting to dashboard...",
+          description: "Redirecting...",
         });
-        router.push("/dashboard");
+        // Redirect to the root page; HomePage will handle routing to /dashboard
+        router.push("/"); 
       } else {
         toast({
           variant: "destructive",
