@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { signInWithEmail } from "@/app/actions/auth.actions";
+import { signInWithEmail, signOutUser } from "@/app/actions/auth.actions"; // Import signOutUser
 import { useState } from "react";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
@@ -43,16 +43,31 @@ export function LoginForm() {
           title: "Login Successful",
           description: "Redirecting...",
         });
-        // Redirect to the root page; HomePage will handle routing to /dashboard
         router.push("/"); 
       } else {
-        toast({
-          variant: "destructive",
-          title: "Login Failed",
-          description: result.error || "An unknown error occurred.",
-        });
+        // If the specific error for non-admin login is returned
+        if (result.error === "AUTH_ADMIN_REQUIRED") {
+          await signOutUser(); // Ensure client-side sign-out
+          toast({
+            variant: "destructive",
+            title: "Access Denied",
+            description: "You are not authorized as an admin.",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description: result.error || "An unknown error occurred.",
+          });
+        }
       }
     } catch (error) {
+      // Fallback sign-out in case of unexpected errors during the process for a non-admin
+      // This catch might not be strictly necessary if result.error always captures AUTH_ADMIN_REQUIRED
+      // but added for robustness.
+      if (result.error === "AUTH_ADMIN_REQUIRED") { // Check result.error from the try block
+         await signOutUser();
+      }
       toast({
         variant: "destructive",
         title: "Login Error",
@@ -112,3 +127,4 @@ export function LoginForm() {
     </Form>
   );
 }
+

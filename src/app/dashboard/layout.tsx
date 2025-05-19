@@ -20,12 +20,12 @@ export default function DashboardLayout({
   const { currentUser, loading, isAdmin } = useAuth(); 
   const router = useRouter();
 
-  console.log('[DashboardLayout] Rendering. loading:', loading, 'currentUser:', currentUser?.email, 'isAdmin:', isAdmin);
+  console.log('[DashboardLayout] Rendering. loading:', loading, 'currentUser email:', currentUser?.email, 'isAdmin:', isAdmin);
 
   useEffect(() => {
     if (!loading) {
       if (!currentUser || !isAdmin) { 
-        console.log('[DashboardLayout] useEffect: Not admin or no user, redirecting to /login. currentUser:', currentUser?.email, 'isAdmin:', isAdmin);
+        console.log('[DashboardLayout] useEffect: Not admin or no user, redirecting to /login. currentUser email:', currentUser?.email, 'isAdmin:', isAdmin);
         router.replace('/login');
       } else {
         console.log('[DashboardLayout] useEffect: User is admin, proceeding.');
@@ -43,9 +43,7 @@ export default function DashboardLayout({
   }
 
   if (!currentUser || !isAdmin) {
-     console.log('[DashboardLayout] Guard: Not admin or no user after loading. Will be redirected by useEffect. currentUser:', currentUser?.email, 'isAdmin:', isAdmin);
-    // Return loader or null, useEffect will handle the redirect.
-    // This prevents rendering dashboard content prematurely.
+     console.log('[DashboardLayout] Guard: Not admin or no user after loading. Will be redirected by useEffect. currentUser email:', currentUser?.email, 'isAdmin:', isAdmin);
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

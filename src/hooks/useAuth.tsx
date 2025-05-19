@@ -16,7 +16,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_EMAIL = "admin@numbersguru.com"; // Ensure this is the correct admin email
+const ADMIN_EMAIL = "admin@numbersguru.com"; 
 
 export const AuthProvider: FC<{children: ReactNode}> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -25,7 +25,7 @@ export const AuthProvider: FC<{children: ReactNode}> = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('[AuthProvider] onAuthStateChanged triggered. User email:', user?.email);
+      console.log('[AuthProvider] onAuthStateChanged triggered. User email:', user?.email, 'UID:', user?.uid);
       setCurrentUser(user);
       if (user && user.email) {
         const isAdminUser = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -38,12 +38,10 @@ export const AuthProvider: FC<{children: ReactNode}> = ({ children }) => {
       setLoading(false);
     });
     return () => {
+      console.log('[AuthProvider] Unsubscribing from onAuthStateChanged.');
       unsubscribe();
     };
   }, []);
-
-  // Log state before rendering children for clarity
-  // console.log('[AuthProvider] Rendering children. currentUser:', currentUser?.email, 'loading:', loading, 'isAdmin:', isAdmin);
 
   if (loading) {
     return (
@@ -67,3 +65,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
