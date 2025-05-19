@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { User } from "firebase/auth";
@@ -21,7 +22,9 @@ export const AuthProvider: FC<{children: ReactNode}> = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    console.log('AuthProvider: useEffect mounting. Setting up onAuthStateChanged.');
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('AuthProvider: onAuthStateChanged fired. User:', user ? user.email : null);
       setCurrentUser(user);
       // In a real application, you would implement logic here to verify
       // if the authenticated user is an administrator.
@@ -29,11 +32,16 @@ export const AuthProvider: FC<{children: ReactNode}> = ({ children }) => {
       // For this scaffold, any authenticated user is considered an admin.
       setIsAdmin(!!user); 
       setLoading(false);
+      console.log('AuthProvider: State updated. currentUser:', user ? user.email : null, 'loading:', false, 'isAdmin:', !!user);
     });
-    return () => unsubscribe();
+    return () => {
+      console.log('AuthProvider: useEffect unmounting. Unsubscribing from onAuthStateChanged.');
+      unsubscribe();
+    };
   }, []);
 
   if (loading) {
+    console.log('AuthProvider: Rendering global loader because loading is true.');
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -41,6 +49,7 @@ export const AuthProvider: FC<{children: ReactNode}> = ({ children }) => {
     );
   }
 
+  console.log('AuthProvider: Rendering children. currentUser:', currentUser ? currentUser.email : null, 'loading:', loading);
   return (
     <AuthContext.Provider value={{ currentUser, loading, isAdmin }}>
       {children}
@@ -55,3 +64,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+

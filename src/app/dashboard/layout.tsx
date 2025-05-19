@@ -18,19 +18,26 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { currentUser, loading } = useAuth(); // isAdmin is implicitly true if currentUser exists
+  const { currentUser, loading } = useAuth(); 
   const router = useRouter();
 
   useEffect(() => {
+    console.log('DashboardLayout useEffect: loading=', loading, 'currentUser object:', currentUser);
     if (!loading) {
-      if (!currentUser) { // If not loading and no user, redirect to login
+      if (!currentUser) { 
+        console.log('DashboardLayout: No user found after loading, redirecting to /login');
         router.replace('/login');
+      } else {
+        console.log('DashboardLayout: User found (email: ' + currentUser.email + '), proceeding to render dashboard.');
       }
+    } else {
+      console.log('DashboardLayout: Still loading auth state...');
     }
   }, [currentUser, loading, router]);
 
   // If loading, or if not loading but no currentUser (which implies not admin in current setup)
-  if (loading || !currentUser) { 
+  if (loading || (!loading && !currentUser)) { 
+    console.log('DashboardLayout: Rendering loader. loading=', loading, 'currentUser truthy=', !!currentUser);
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -39,6 +46,7 @@ export default function DashboardLayout({
   }
 
   // If we reach here, loading is false and currentUser exists (so isAdmin is true)
+  console.log('DashboardLayout: Rendering dashboard content for user:', currentUser?.email);
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen">
