@@ -9,37 +9,29 @@ interface ActionResult {
   error?: string;
 }
 
-// In a real application, you would define your admin list here or fetch it from a secure source.
-// For example: const ADMIN_EMAILS = ["admin1@example.com", "superadmin@example.com"];
-// Or check custom claims set on the Firebase user.
+const ADMIN_EMAIL = "admin@numbersguru.com";
 
-async function isUserAdmin(email: string): Promise<boolean> {
-  // Placeholder admin check: In a real app, verify against a protected list or custom claims.
-  // For this scaffold, we assume if Firebase auth is successful, the user is an admin.
-  console.log(`[AuthAction - isUserAdmin] Admin check for ${email}: For scaffold, all authenticated users are considered admins.`);
-  return true; 
+async function isUserAdmin(email: string | null | undefined): Promise<boolean> {
+  if (!email) {
+    return false;
+  }
+  return email.toLowerCase() === ADMIN_EMAIL;
 }
 
 
 export async function signInWithEmail(email: string, password: string): Promise<ActionResult> {
-  console.log(`[AuthAction - signInWithEmail] Attempting to sign in user: ${email}`);
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log(`[AuthAction - signInWithEmail] Firebase signInWithEmailAndPassword successful. User UID: ${userCredential.user.uid}, Email: ${userCredential.user.email}`);
     
-    // Post-authentication admin check
-    const isAdmin = await isUserAdmin(userCredential.user.email || "");
+    const isAdmin = await isUserAdmin(userCredential.user.email);
     if (!isAdmin) {
-      console.log(`[AuthAction - signInWithEmail] User ${email} authenticated but is NOT an admin according to isUserAdmin. Signing out.`);
-      await signOut(auth);
+      await signOut(auth); // Sign out non-admin users immediately
       return { success: false, error: "Access denied. User is not authorized as an admin." };
     }
 
-    console.log(`[AuthAction - signInWithEmail] User ${email} authenticated and is admin. Returning success.`);
     return { success: true };
   } catch (error) {
     const authError = error as AuthError;
-    console.error(`[AuthAction - signInWithEmail] Firebase signInWithEmailAndPassword FAILED for ${email}. Code: ${authError.code}, Message: ${authError.message}`);
     let errorMessage = "An unknown error occurred during sign-in.";
     switch (authError.code) {
       case "auth/invalid-email":
@@ -57,19 +49,16 @@ export async function signInWithEmail(email: string, password: string): Promise<
         errorMessage = authError.message || errorMessage;
         break;
     }
-    console.error(`[AuthAction - signInWithEmail] Returning error: ${errorMessage}`);
     return { success: false, error: errorMessage };
   }
 }
 
 export async function signOutUser(): Promise<ActionResult> {
-  console.log("[AuthAction - signOutUser] Attempting to sign out user.");
   try {
     await signOut(auth);
-    console.log("[AuthAction - signOutUser] Firebase signOut successful.");
     return { success: true };
   } catch (error) {
-    console.error(`[AuthAction - signOutUser] Firebase signOut FAILED. Message: ${(error as Error).message}`);
     return { success: false, error: (error as Error).message || "Failed to sign out." };
   }
 }
+
