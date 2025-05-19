@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect } from 'react';
@@ -6,20 +7,20 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
 export default function HomePage() {
-  const { currentUser, loading, isAdmin } = useAuth();
+  const { currentUser, loading } = useAuth(); // isAdmin is implicitly true if currentUser exists and not loading
   const router = useRouter();
 
   useEffect(() => {
     // Wait for loading to finish before redirecting
     if (!loading) {
-      if (currentUser && isAdmin) {
+      if (currentUser) { // If user is logged in (isAdmin is true by current scaffold logic)
         router.replace('/dashboard');
       } else {
-        // If not an admin or not logged in, redirect to login
+        // If not loading, and no currentUser, redirect to login
         router.replace('/login');
       }
     }
-  }, [currentUser, isAdmin, loading, router]);
+  }, [currentUser, loading, router]);
 
   return (
     <div className="flex h-screen flex-col items-center justify-center bg-background text-center">
