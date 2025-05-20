@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { signInWithEmail, signOutUser } from "@/app/actions/auth.actions"; // Import signOutUser
+import { signInWithEmail, signOutUser } from "@/app/actions/auth.actions"; // Removed isUserAdmin from import
 import { useState } from "react";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
@@ -37,22 +37,24 @@ export function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     try {
+      // The admin check is now handled within signInWithEmail server action
       const result = await signInWithEmail(data.email, data.password);
+      
       if (result.success) {
         toast({
           title: "Login Successful",
-          description: "Redirecting...",
+          description: "Redirecting to dashboard...",
         });
-        router.push("/"); 
+        router.push("/"); // HomePage will handle redirection to /dashboard
       } else {
-        // If the specific error for non-admin login is returned
-        if (result.error === "AUTH_ADMIN_REQUIRED") {
-          await signOutUser(); // Ensure client-side sign-out
+        if (result.errorCode === "AUTH_ADMIN_REQUIRED") {
           toast({
             variant: "destructive",
             title: "Access Denied",
-            description: "You are not authorized as an admin.",
+            description: "You are not authorized to access the admin dashboard.",
           });
+          // Ensure user is signed out on client-side as well
+          await signOutUser(); 
         } else {
           toast({
             variant: "destructive",
@@ -62,12 +64,7 @@ export function LoginForm() {
         }
       }
     } catch (error) {
-      // Fallback sign-out in case of unexpected errors during the process for a non-admin
-      // This catch might not be strictly necessary if result.error always captures AUTH_ADMIN_REQUIRED
-      // but added for robustness.
-      if (result.error === "AUTH_ADMIN_REQUIRED") { // Check result.error from the try block
-         await signOutUser();
-      }
+      console.error("Login form submission error:", error);
       toast({
         variant: "destructive",
         title: "Login Error",
@@ -127,4 +124,3 @@ export function LoginForm() {
     </Form>
   );
 }
-

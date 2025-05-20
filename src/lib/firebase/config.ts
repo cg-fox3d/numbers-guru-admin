@@ -3,14 +3,14 @@ import { getAuth, Auth } from "firebase/auth";
 
 // IMPORTANT: Replace these with your actual Firebase project configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBNceENludogP8jNyslmpsMGgUjSXNhCyM",
-  authDomain: "number-guru-backend.firebaseapp.com",
-  projectId: "number-guru-backend",
-  storageBucket: "number-guru-backend.firebasestorage.app",
-  messagingSenderId: "637453549935",
-  appId: "1:637453549935:web:0b3f7122ef75f93f68a89a",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-
+console.log('good to have....');
 let app: FirebaseApp;
 if (!getApps().length) {
   app = initializeApp(firebaseConfig);
